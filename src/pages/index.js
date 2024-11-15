@@ -1,15 +1,50 @@
 // Use API - [GET] https://dummyapi.online/api/movies
 
+import { useEffect, useState } from "react";
+
+import Movie from "./movie";
+import Footer from "./Footer"
+
 export default function Home() {
+
+  const [movieData, setMovieData] = useState([]);
+  const [selectedMovies, setSelectedMovies] = useState([]);
+  const handleCheckbox = (id) => {
+    const idsArray = [...selectedMovies];
+
+    if (idsArray.includes(id)) {
+      const idIndex = idsArray.indexOf(id)
+      idsArray.splice(idIndex, 1);
+    } else {
+      idsArray.push(id);
+    }
+
+    setSelectedMovies(idsArray);
+  }
+
+  useEffect(() => {
+    async function fetchMovieData() {
+      const response = await fetch("https://dummyapi.online/api/movies");
+      const result = await response.json()
+      setMovieData(result);
+    }
+    fetchMovieData()
+  }, [])
+
+
+
   return (
-    <div className="w-full max-w-screen-sm mx-auto block py-12 space-y-3">
-      <div className="border border-gray-500 rounded-md p-4 w-full space-y-4">
-        <p className="text-lg font-bold">Movie Title</p>
-        <div className="flex items-center gap-3">
-          <p className="text-sm">Rating &mdash;</p>
-          <p className="text-6xl font-black">6.1</p>
-        </div>
-      </div>
+
+    <div>
+      <Footer selectedMovies={selectedMovies} />
+      {movieData.length !== 0 ?
+        movieData.map((movie) => (
+          <Movie key={movie.id} movie={movie} selectedMovies={selectedMovies} handleCheckbox={handleCheckbox} />
+        ))
+        :
+        <span className="text-xl">LOADING</span>
+      }
     </div>
+
   );
 }
